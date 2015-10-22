@@ -87,7 +87,7 @@ public class OSMWrapperAPI {
 		String top = format.format(lon + vicinityRange);
 
 		String string = OPENSTREETMAP_API_06 + "map?bbox=" + left + "," + bottom + "," + right + ","
-				+ top;
+				+ top+"?querytype=way";
 		URL osm = new URL(string);
 		HttpURLConnection connection = (HttpURLConnection) osm.openConnection();
 
@@ -106,7 +106,7 @@ public class OSMWrapperAPI {
 	String top = format.format(btop);
 
 
-	String string = OPENSTREETMAP_API_06 + "map?bbox=" + left + "," + bottom + "," + right + "," + top;
+	String string = OPENSTREETMAP_API_06 + "map?bbox=" + left + "," + bottom + "," + right + "," + top+"?querytype=way";
 	System.out.println("STRING: "+string);
 	URL osm = new URL(string);
 	HttpURLConnection connection = (HttpURLConnection) osm.openConnection();

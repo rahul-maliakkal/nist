@@ -34,35 +34,42 @@ def correlateRoadsWithEvents(road_csv, events_csv):
     roads = pd.read_csv('./'+road_csv)
     accidents = pd.read_csv('./'+events_csv)
 
-for index, row in v_roads.iteritems():
-    min_lat = -1
-    if index == 'min_lat':
-        min_lat = row[index]
-        print min_lat
-    # min_lat = row['min_lat']
-    # min_lon = row['min_lon']
-    # max_lat = row['max_lat']
-    # max_lon = row['max_lon']
-    total_events = 0
-    for i, r in v_acc.iteritems():
-        e_lat = r['latitude']
-        e_lon = r['longitude']
-        if e_lat >= min_lat and e_lat <= max_lat and e_lon >= min_lon and e_lon <= max_lon:
-            total_events += 1
-    row['num_events'] = total_events
+    for i, row in v_roads_min.head(5000).iterrows():
+        min_lat = row[10]
+        min_lon = row[11]
+        max_lat = row[12]
+        max_lon = row[13]
+        if (isinstance(min_lat, (float, int)) and
+            isinstance(min_lon, (float, int)) and
+            isinstance(max_lat, (float, int)) and
+            isinstance(max_lon, (float, int))):
+            total_events = 0
+            for r in v_acc_min.head(5000).itertuples():
+                e_lat = r[13]
+                e_lon = r[14]
+                if (isinstance(e_lat, (float, int)) and
+                    isinstance(e_lon, (float, int))):
+                    if (e_lat >= min_lat and
+                        e_lat <= max_lat and
+                        e_lon >= min_lon and
+                        e_lon <= max_lon):
+                            total_events += 1
+                else:
+                    continue
+            v_roads_min.set_value(i, 'num_events', total_events)
+        else:
+            v_roads_min.set_value(i, 'num_events', -1)
 
 
 
 with open('nvirginiaroads.csv','wb') as csvfile:
-    csvwriter = csv.writer(csvfile, delimiter=",")
-
-    api = overpy.Overpass()
-
     # coords = "38.8335031,-77.0499407,38.833862,-77.048176"
 
     # N Virginia coords
+
     coords = "38.735808,-77.654564,39.285358,-77.02262"
     print("Querying with coords: (" + coords + ") ...")
+    api = overpy.Overpass()
     result = api.query("""way(""" + coords + """)["highway"];
         (._;>;);
         out body;
@@ -180,7 +187,3 @@ with open('nvirginiaroads.csv','wb') as csvfile:
     # s = sorted(s)
     # for street in s:
     #   print street
-
-
-
-

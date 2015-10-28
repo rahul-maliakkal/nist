@@ -1,21 +1,19 @@
 # BEFORE DOING THIS RUN 'pip install overpy' in terminal
 import overpy
 import csv
+import pandas as pd
 from math import radians, cos, sin, asin, sqrt
 
 
 from osmapi import OsmApi
 
 def searchForName(values, searchFor):
-    # print MyApi.Map(38.735808,-77.654564,39.285358,-77.02262)
-    # realized from http://andrew.hedges.name/experiments/haversine/
     for k in values:
         if searchFor in v:
             return k
     return None
 
 def haversine(lat1, lon1, lat2, lon2):
-
     """
     Calculate the great circle distance between two points
     on the earth (specified in decimal degrees)
@@ -32,16 +30,39 @@ def haversine(lat1, lon1, lat2, lon2):
     rM = 3956
     return c * rM
 
+def correlateRoadsWithEvents(road_csv, events_csv):
+    roads = pd.read_csv('./'+road_csv)
+    accidents = pd.read_csv('./'+events_csv)
+
+for index, row in v_roads.iteritems():
+    min_lat = -1
+    if index == 'min_lat':
+        min_lat = row[index]
+        print min_lat
+    # min_lat = row['min_lat']
+    # min_lon = row['min_lon']
+    # max_lat = row['max_lat']
+    # max_lon = row['max_lon']
+    total_events = 0
+    for i, r in v_acc.iteritems():
+        e_lat = r['latitude']
+        e_lon = r['longitude']
+        if e_lat >= min_lat and e_lat <= max_lat and e_lon >= min_lon and e_lon <= max_lon:
+            total_events += 1
+    row['num_events'] = total_events
+
+
 
 with open('nvirginiaroads.csv','wb') as csvfile:
     csvwriter = csv.writer(csvfile, delimiter=",")
 
     api = overpy.Overpass()
 
+    # coords = "38.8335031,-77.0499407,38.833862,-77.048176"
+
+    # N Virginia coords
     coords = "38.735808,-77.654564,39.285358,-77.02262"
     print("Querying with coords: (" + coords + ") ...")
-    # result = api.query("node(-82.355444, 29.635203, 82.339565, 29.652099)[highway=motorway];out;")
-
     result = api.query("""way(""" + coords + """)["highway"];
         (._;>;);
         out body;
@@ -50,7 +71,9 @@ with open('nvirginiaroads.csv','wb') as csvfile:
     print "Number of ways: ", len(result.ways)
     s = []
     w = {}
-    csvwriter.writerow(["road_name","road_length","crossing","service","traffic_signals","tertiary","residential","motorway_junction","motorway","min_lat","min_lon","max_lat","max_lon"])
+
+    csvwriter.writerow(["road_name","road_length","highway","crossing","service","traffic_signals","tertiary","residential","motorway_junction","motorway","min_lat","min_lon","max_lat","max_lon"])
+
     for way in result.ways:
         print("Name: " + way.tags.get("name", "n/a").encode("UTF8"))
 
@@ -58,10 +81,34 @@ with open('nvirginiaroads.csv','wb') as csvfile:
         way_name = way.tags.get("name", "n/a").encode("UTF8")
 
 
+        # Contain the different kinds of higways on our way
+        num_crossing = 0
+        num_service = 0
+        num_traffic_signals = 0
+        num_tertiary = 0
+        num_residential = 0
+        num_motorway_junction = 0
+        num_motorway = 0
+
         highwayDict = {};
+
         way_highway = way.tags.get("highway", "n/a")
         if way_highway != "n/a":
             highwayDict[way_highway] = 1
+            if way_highway == "crossing":
+                num_crossing = 1
+            elif way_highway == "service":
+                num_service = 1
+            elif way_highway == "traffic_signals":
+                num_traffic_signals = 1
+            elif way_highway == "tertiary":
+                num_tertiary = 1
+            elif way_highway == "residential":
+                num_residential = 1
+            elif way_highway == "motorway_junction":
+                num_motorway_junction += 1
+            elif way_highway == "motorway":
+                num_motorway = 1
 
         print("  Highway: " + way_highway)
         print("  Nodes:")
@@ -71,13 +118,6 @@ with open('nvirginiaroads.csv','wb') as csvfile:
         min_lon = 9999
 
         for node in way.nodes:
-            num_crossing = 0
-            num_service = 0
-            num_traffic_signals = 0
-            num_tertiary = 0
-            num_residential = 0
-            num_motorway_junction = 0
-            num_motorway = 0
 
             if node.lat < min_lat:
                 min_lat = node.lat
@@ -87,19 +127,20 @@ with open('nvirginiaroads.csv','wb') as csvfile:
                 min_lon = node.lon
             if node.lon > max_lon:
                 max_lon = node.lon
-
             print("    Lat: %f, Lon: %f" % (node.lat, node.lon))
             print(node.tags)
-
             node_highway = node.tags.get("highway", "n/a")
-
             if node_highway is not "n/a":
                 if len(highwayDict) != 0:
                     if node_highway in highwayDict.keys():
+                        highwayDict[node_highway] += 1
                         if node_highway == "crossing":
                             num_crossing += 1
                         elif node_highway == "service":
+                            print("SERVICE!!")
+
                             num_service += 1
+                            print(num_service)
                         elif node_highway == "traffic_signals":
                             num_traffic_signals += 1
                         elif node_highway == "tertiary":
@@ -111,29 +152,29 @@ with open('nvirginiaroads.csv','wb') as csvfile:
                         elif node_highway == "motorway":
                             num_motorway += 1
                     else:
+                        highwayDict[node_highway] = 1
                         if node_highway == "crossing":
-                            num_crossing += 1
+                            num_crossing = 1
                         elif node_highway == "service":
-                            num_service += 1
+                            num_service = 1
+                            print("Found first service")
                         elif node_highway == "traffic_signals":
-                            num_traffic_signals += 1
+                            num_traffic_signals = 1
                         elif node_highway == "tertiary":
-                            num_tertiary += 1
+                            num_tertiary = 1
                         elif node_highway == "residential":
-                            num_residential += 1
+                            num_residential = 1
                         elif node_highway == "motorway_junction":
                             num_motorway_junction += 1
                         elif node_highway == "motorway":
-                            num_motorway += 1
+                            num_motorway = 1
 
 
 
         way.distance = haversine(min_lat, min_lon, max_lat, max_lon)
-        # csv += ""+way.distance+","+highwayDict+","+min_lat+","+min_lon+","+max_lat+","+max_lon+"\n"
-        csvwriter.writerow([way_name, way.distance, num_crossing, num_service, num_traffic_signals, num_tertiary, num_residential, num_motorway_junction, num_motorway, min_lat, min_lon, max_lat, max_lon])
+
+        csvwriter.writerow([way_name, way.distance, highwayDict, num_crossing, num_service, num_traffic_signals, num_tertiary, num_residential, num_motorway_junction, num_motorway, min_lat, min_lon, max_lat, max_lon])
         print("{} and {}".format("ROAD LENGTH: ", way.distance))
-
-
 
 
     # s = sorted(s)

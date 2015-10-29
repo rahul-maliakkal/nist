@@ -8,8 +8,8 @@ def getNumEvents(roads, events, road_name, event_type):
     events_lat_asc = events.sort(['latitude'], ascending=[1])
 
     # Get the first 7000 roads & events
-    roads_lat_asc_7000 = roads_lat_asc.head(7000)
-    events_lat_asc_7000 = events_lat_asc.head(7000)
+    roads_lat_asc_7000 = roads_lat_asc.head(1000)
+    events_lat_asc_7000 = events_lat_asc.head(1000)
 
     for i, row in roads_lat_asc_7000.iterrows():
         min_lat = row[10]
@@ -37,9 +37,11 @@ def getNumEvents(roads, events, road_name, event_type):
         else:
             roads_lat_asc_7000.set_value(i, 'num_events_' + event_type, -1)
 
-    roads_lat_asc_7000.to_csv('../RoadsWithNumEvents/'+road_name+'_'+event_type)
+    roads_lat_asc_7000.to_csv('../RoadsWithNumEvents/'+road_name+'_'+event_type+'.csv')
 
+
+# HARDCODED FOR NOW
 road_df = pd.read_csv('../nvirginiaroads.csv')
 events_df = pd.read_csv('../VirginiaEvents/e_accidentsAndIncidents_va.csv')
 
-getNumEvents(road_df, events_df, 'nvirginiaroads' 'accidentsAndIncidents')
+getNumEvents(road_df, events_df, 'nvirginiaroads', 'accidentsAndIncidents')

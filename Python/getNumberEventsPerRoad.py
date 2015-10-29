@@ -1,6 +1,11 @@
 import csv
 import pandas as pd
 
+# PARAMS:
+#   roads = CSV DATAFRAME road_df file
+#   events = CSV DATAFRAME event_df file
+#   road_name  = STRING name of roads, i.e. nvirginiaroads
+#   event_type = STRING name of event type, i.e. accidentsAndIncidents
 def getNumEvents(roads, events, road_name, event_type):
 
     # Sort roads & events by latitude, ascending, to make matching them easier

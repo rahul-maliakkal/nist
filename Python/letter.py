@@ -34,7 +34,7 @@ def correlateRoadsWithEvents(road_csv, events_csv):
     roads = pd.read_csv('./'+road_csv)
     accidents = pd.read_csv('./'+events_csv)
 
-    for i, row in v_roads_min.head(5000).iterrows():
+    for i, row in n_roads.head(5000).iterrows():
         min_lat = row[10]
         min_lon = row[11]
         max_lat = row[12]
@@ -56,15 +56,15 @@ def correlateRoadsWithEvents(road_csv, events_csv):
                             total_events += 1
                 else:
                     continue
-            v_roads_min.set_value(i, 'num_events', total_events)
+            n_roads.set_value(i, 'num_events', total_events)
         else:
-            v_roads_min.set_value(i, 'num_events', -1)
+            n_roads.set_value(i, 'num_events', -1)
 
 
 
 with open('nvirginiaroads.csv','wb') as csvfile:
     # coords = "38.8335031,-77.0499407,38.833862,-77.048176"
-
+    csvwriter = csv.writer(csvfile, delimiter=",")
     # N Virginia coords
 
     coords = "38.735808,-77.654564,39.285358,-77.02262"

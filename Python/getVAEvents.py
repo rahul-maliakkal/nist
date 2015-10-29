@@ -6,7 +6,7 @@ import pandas as pd
 
 def saveVAEvents(df, name):
 	va_events = df[df['event_id'].str.contains('VDOT|VaTraffic')]
-	va_events.to_csv('../' + name + '_va.csv')
+	va_events.to_csv('../VirginiaEvents/' + name + '_va.csv')
 
 e_accidentsAndIncidents = pd.read_csv('../e_accidentsAndIncidents.csv')
 e_roadwork = pd.read_csv('../e_roadwork.csv')

@@ -35,6 +35,7 @@ for i, row in roads_lat_asc_7000.iterrows():
         isinstance(max_lon, (float, int))):
         # Initialize total_events for a road <-- 0
         total_events = 0
+        event_month = ""
 
         # For each event in our smaller events list...
         for r in events_lat_asc_7000.itertuples():
@@ -54,18 +55,25 @@ for i, row in roads_lat_asc_7000.iterrows():
                     e_lon >= min_lon and
                     e_lon <= max_lon):
                         total_events += 1
+                # also extract events month
+                #event_moonth
             else:
                 continue
         # Without errors, we can now set the value of road's new column `num_events_EVENT_TYPE`
         #   to be total_events
         roads_lat_asc_7000.set_value(i, 'num_events_' + event_type, total_events)
+
+        if ()
     else:
         # Else we had an error validating that the lat/lon were floats
         roads_lat_asc_7000.set_value(i, 'num_events_' + event_type, -1)
 
+
+        roads_lat_asc_7000.set_value(i, 'is_january' + event_type, -1)
+
 # Finally, save this new roads (with the `num_events_EVENT_TYPE` column) to a new CSV
 #   in the folder /RoadsWithNumEvents/
-roads_lat_asc_7000.to_csv('../RoadsWithNumEvents/'+road_name+'_'+event_type+'.csv')
+roads_lat_asc_7000.to_csv('../RoadsWithNumEvents/' + road_name + '_' + event_type + '.csv')
 
 
 # HARDCODED FOR NOW
